@@ -1,6 +1,6 @@
 language: php
 php:
-  - '7.1'
+  - 7.1
 script:
   - git clone git://github.com/NextDom/AlternativeMarket-Lists.git
   - cd AlternativeMarket-Lists
