@@ -1,14 +1,16 @@
 language: php
+php:
+  - '7.1'
 script:
-- git clone git://github.com/NextDom/AlternativeMarket-Lists.git
-- cd AlternativeMarket-Lists
-- echo ${GITHUB_TOKEN} > .github-token
-- php update.php
-- git config --global user.email ${USER_EMAIL}
-- git config --global user.name ${USER_NAME}
-- git add result.json
-- git commit -m `date +%s`
-- git push "https://${GITHUB_TOKEN}@github.com/NextDom/AlternativeMarket-Lists.git" master
+  - git clone git://github.com/NextDom/AlternativeMarket-Lists.git
+  - cd AlternativeMarket-Lists
+  - echo ${GITHUB_TOKEN} > .github-token
+  - php update.php
+  - git config --global user.email ${USER_EMAIL}
+  - git config --global user.name ${USER_NAME}
+  - git add result.json
+  - git commit -m `date +%s`
+  - git push "https://${GITHUB_TOKEN}@github.com/NextDom/AlternativeMarket-Lists.git" master
 env:
   global:
   - secure: SbgFzN0PxJ9z/R/nMYd20A5QWcRlf6Z7MlHcFl79Hm44Xx5VrJBKfEDdBneKQvg6hFqyYxF58DytJtO2Il0OrZEkn6BHqYUkXa19wA8FZkKy+2kO51xWYWtLq2PN39NAuqHIrbL1wib+5OWyyCU7wbEiVkChF603JOzubM0QLXUHnSD8yrauB7BveiAertgh5Kuwrg/QsE4H7b1SE2Foa3LrK599xJqjCJjW7pWS1vMpqSrJxvW2Yn0MjRDE5iqGm7cYn+Pv+/t5Fgc8H+hlVApZeivBZFUifQyPRD8I/vm/9lndw/FJyF3nc6e6d7YDJGgxRaoGBNGQSTG2rsGLqBzYdEZ2+spqvGFwhJkSgXDLPI1bW5Zy2ZjrpOmAYAUuJodJPFlCBvLmh9cUgD+tfZ2mY/fTj+2ZR9Zq+cWAevjZzTcEo7ZDH6xuzMlMClHaTJl3OyeM/wbBRp35sLHjTRj6MQbspidDRJAA66t2Mn6ISxtB8hclfH4LGMlUrRpTefPYo3kwV4OPqJBE1K4QDwCNutZyO7CxQW2X7zS/qzn750ApAfsAbcUBJDbxwxGXs92niwdBSUG5h7QS91RUY4KHVUAJn9+QTCrE5eUj0fIc04pbD2SkwQVPVzZz4Yvl5YGW5/OWZwf409Z0n3MtZ9ADeDC2f/pM45sIl/kM4oc=
