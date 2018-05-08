@@ -142,9 +142,23 @@ foreach ($baseList as $fullName) {
   }
 }
 
-// Stockage des données
-$result = [];
-$result['version'] = \time();
-$result['plugins'] = $plugins;
+$needUpdate = false;
+// Comparaison avec l'ancien contenu
+if (\file_exists('result.json')) {
+  $oldContent = \file_get_contents('result.json');
+  $oldResult = \json_decode($oldContent, true);
+  $oldPlugins = $oldResult['plugins'];
 
-\file_put_contents('result.json', json_encode($result, true));
+  if (json_encode($oldPlugins, true) !== json_encode($plugins, true)) {
+    $needUpdate = true;
+  }
+}
+
+// Met à jour le fichier que si nécessaire
+if ($needUpdate) {
+  // Stockage des données
+  $result = [];
+  $result['version'] = \time();
+  $result['plugins'] = $plugins;
+  \file_put_contents('result.json', json_encode($result, true));
+}
