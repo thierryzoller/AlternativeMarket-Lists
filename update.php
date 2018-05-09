@@ -57,6 +57,59 @@ function downloadContent($url, $gitHubToken = '')
 }
 
 /**
+ * Test si l'URL pointe vers un document téléchargeable.
+ */
+function isDownloadable($url) {
+    $result = false;
+    $curlSession = curl_init();
+    curl_setopt($curlSession, CURLOPT_URL,$url);
+    curl_setopt($curlSession, CURLOPT_NOBODY, 1);
+    curl_setopt($curlSession, CURLOPT_FAILONERROR, 1);
+    curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, 1);
+    if(curl_exec($curlSession) !== false) {
+        $result = true;
+    }
+    return $result;
+}
+
+/**
+ * Essaie de trouver des aperçu dans les dépôts.
+ *
+ * @return array URLs des screenshots.
+ */
+function getScreenshots($gitId, $repository, $pluginId) {
+    $patterns = array(
+        $pluginId.'-Screenshot',
+        $pluginId.'-screenshot',
+        'Screenshot',
+        'screenshot',
+        'widget',
+        'panel'
+    );
+    $baseUrls = array(
+        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/images/',
+        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/',
+        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/images/',
+        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/'
+    );
+    $result = [];
+    foreach ($baseUrls as $baseUrl) {
+        foreach ($patterns as $pattern) {
+            $url = $baseUrl.$pattern;
+            if (isDownloadable($url.'.png')) {
+                array_push($result, $url.'.png');
+            }
+            for ($i = 0; $i < 11; ++$i) {
+                if (isDownloadable($url.$i.'.png')) {
+                    array_push($result, $url.$i.'.png');
+                }
+            }
+        }
+    }
+    return $result;
+}
+
+/**
  * Lire la liste des dépôts
  */
 function getBaseList() {
@@ -100,8 +153,8 @@ foreach ($baseList as $fullName) {
       $plugin = [];
       // Informations de GitHub
       $plugin['defaultBranch'] = $gitHubData['default_branch'];
-      $plugin['repository'] = $gitHubData['name'];
       $plugin['gitId'] = $gitHubData['owner']['login'];
+      $plugin['repository'] = $gitHubData['name'];
       // Informations du plugin
       $plugin['id'] = $infoJsonData['id'];
       $plugin['name'] = $infoJsonData['name'];
@@ -133,6 +186,7 @@ foreach ($baseList as $fullName) {
           \array_push($plugin['branches'], $branchData);
         }
       }
+      $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
       \array_push($plugins, $plugin);
       echo "OK $fullName\n";
     }
@@ -158,7 +212,7 @@ if (\file_exists('result.json')) {
 if ($needUpdate) {
   // Stockage des données
   $result = [];
-  $result['version'] = \time();
+  $result['version'] =     ime();
   $result['plugins'] = $plugins;
   \file_put_contents('result.json', json_encode($result, true));
 }
