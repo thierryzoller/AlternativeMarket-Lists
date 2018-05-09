@@ -195,7 +195,7 @@ foreach ($baseList as $fullName) {
     }
   }
 }
-
+var_dump($plugins);
 $needUpdate = false;
 // Comparaison avec l'ancien contenu
 if (\file_exists('result.json')) {
