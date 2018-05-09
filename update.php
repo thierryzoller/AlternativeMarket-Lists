@@ -212,7 +212,7 @@ if (\file_exists('result.json')) {
 if ($needUpdate) {
   // Stockage des données
   $result = [];
-  $result['version'] =     ime();
+  $result['version'] = \time();
   $result['plugins'] = $plugins;
   \file_put_contents('result.json', json_encode($result, true));
 }

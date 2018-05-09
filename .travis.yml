@@ -6,6 +6,7 @@ script:
 - cd AlternativeMarket-Lists
 - echo ${GITHUB_TOKEN} > .github-token
 - php update.php
+after_script:
 - git config --global user.email ${USER_EMAIL}
 - git config --global user.name ${USER_NAME}
 - git add result.json
