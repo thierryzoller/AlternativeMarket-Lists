@@ -221,7 +221,13 @@ if (\file_exists('.github-token')) {
   $gitHubToken = \str_replace("\n", "", $gitHubToken);
 }
 
-listToJson($gitHubToken, 'stable-list.json', 'stable-result.json', false);
-listToJson($gitHubToken, 'unstable-list.json', 'unstable-result.json', false);
-listToJson($gitHubToken, 'jeedom-list.json', 'jeedom-result.json', false);
-listToJson($gitHubToken, 'others-list.json', 'others-result.json', false);
+$marketsList = [
+  'stable-list.json' => 'stable-result.json',
+  'unstable-list.json' => 'unstable-result.json',
+  'jeedom-list.json' => 'jeedom-result.json',
+  'others-list.json' => 'others-result.json'
+];
+
+foreach ($marketsList as $market => $dest) {
+  listToJson($gitHubToken, $market, $dest, false);
+}
