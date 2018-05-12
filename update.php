@@ -123,94 +123,98 @@ function getBaseList($filename) {
 
 function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
   $baseList = getBaseList($src);
-
-  if (DEBUG) {
-    \var_dump($baseList);
-  }
-
-  $plugins = [];
-
-  // Parcours de la liste
-  foreach ($baseList as $fullName) {
-    $gitHubContent = downloadContent('https://api.github.com/repos/'.$fullName, $gitHubToken);
-    $infoJsonContent = downloadContent('https://raw.githubusercontent.com/'.$fullName.'/master/plugin_info/info.json');
+  if ($baseList !== false) {
     if (DEBUG) {
-      \var_dump($gitHubContent);
-      \var_dump($infoJsonContent);
+      \var_dump($baseList);
     }
-    // Test si le dépôt fonctionne et que le fichier définissant les informations du plugin existe.
-    if ($gitHubContent !== false && $infoJsonContent !== false) {
-      $gitHubData = \json_decode($gitHubContent, true);
-      $infoJsonData = \json_decode($infoJsonContent, true);
-      // Test si les données du plugin sont valides
-      if (\is_array($infoJsonData)) {
-        $plugin = [];
-        // Informations de GitHub
-        $plugin['defaultBranch'] = $gitHubData['default_branch'];
-        $plugin['gitId'] = $gitHubData['owner']['login'];
-        $plugin['repository'] = $gitHubData['name'];
-        // Informations du plugin
-        $plugin['id'] = $infoJsonData['id'];
-        $plugin['name'] = $infoJsonData['name'];
-        $plugin['licence'] = $infoJsonData['licence'];
-        $plugin['description'] = '';
-        if (\array_key_exists('description', $infoJsonData)) {
-          $plugin['description'] = $infoJsonData['description'];
-        }
-        $plugin['require'] = $infoJsonData['require'];
-        $plugin['category'] = $infoJsonData['category'];
-        $plugin['documentation'] = [];
-        if (\array_key_exists('documentation', $infoJsonData)) {
-          $plugin['documentation'] = $infoJsonData['documentation'];
-        }
-        $plugin['changelog'] = [];
-        if (\array_key_exists('changelog', $infoJsonData)) {
-          $plugin['changelog'] = $infoJsonData['changelog'];
-        }
-        $plugin['author'] = $infoJsonData['author'];
-        // Informations des branches
-        $plugin['branches'] = [];
-        $branchesContent = downloadContent('https://api.github.com/repos/'. $fullName .'/branches', $gitHubToken);
-        if ($branchesContent) {
-          $branchesData = \json_decode($branchesContent, true);
-          foreach ($branchesData as $branch) {
-            $branchData = [];
-            $branchData['name'] = $branch['name'];
-            $branchData['hash'] = $branch['commit']['sha'];
-            \array_push($plugin['branches'], $branchData);
+
+    $plugins = [];
+
+    // Parcours de la liste
+    foreach ($baseList as $fullName) {
+      $gitHubContent = downloadContent('https://api.github.com/repos/'.$fullName, $gitHubToken);
+      $infoJsonContent = downloadContent('https://raw.githubusercontent.com/'.$fullName.'/master/plugin_info/info.json');
+      if (DEBUG) {
+        \var_dump($gitHubContent);
+        \var_dump($infoJsonContent);
+      }
+      // Test si le dépôt fonctionne et que le fichier définissant les informations du plugin existe.
+      if ($gitHubContent !== false && $infoJsonContent !== false) {
+        $gitHubData = \json_decode($gitHubContent, true);
+        $infoJsonData = \json_decode($infoJsonContent, true);
+        // Test si les données du plugin sont valides
+        if (\is_array($infoJsonData)) {
+          $plugin = [];
+          // Informations de GitHub
+          $plugin['defaultBranch'] = $gitHubData['default_branch'];
+          $plugin['gitId'] = $gitHubData['owner']['login'];
+          $plugin['repository'] = $gitHubData['name'];
+          // Informations du plugin
+          $plugin['id'] = $infoJsonData['id'];
+          $plugin['name'] = $infoJsonData['name'];
+          $plugin['licence'] = $infoJsonData['licence'];
+          $plugin['description'] = '';
+          if (\array_key_exists('description', $infoJsonData)) {
+            $plugin['description'] = $infoJsonData['description'];
           }
+          $plugin['require'] = $infoJsonData['require'];
+          $plugin['category'] = $infoJsonData['category'];
+          $plugin['documentation'] = [];
+          if (\array_key_exists('documentation', $infoJsonData)) {
+            $plugin['documentation'] = $infoJsonData['documentation'];
+          }
+          $plugin['changelog'] = [];
+          if (\array_key_exists('changelog', $infoJsonData)) {
+            $plugin['changelog'] = $infoJsonData['changelog'];
+          }
+          $plugin['author'] = $infoJsonData['author'];
+          // Informations des branches
+          $plugin['branches'] = [];
+          $branchesContent = downloadContent('https://api.github.com/repos/'. $fullName .'/branches', $gitHubToken);
+          if ($branchesContent) {
+            $branchesData = \json_decode($branchesContent, true);
+            foreach ($branchesData as $branch) {
+              $branchData = [];
+              $branchData['name'] = $branch['name'];
+              $branchData['hash'] = $branch['commit']['sha'];
+              \array_push($plugin['branches'], $branchData);
+            }
+          }
+          if ($withScreenshots) {
+            $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
+          }
+          \array_push($plugins, $plugin);
+          echo "OK $fullName\n";
         }
-        if ($withScreenshots) {
-          $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
+        else {
+          echo "ERROR $fullName\n";
         }
-        \array_push($plugins, $plugin);
-        echo "OK $fullName\n";
-      }
-      else {
-        echo "ERROR $fullName\n";
       }
     }
-  }
 
-  $needUpdate = false;
-  // Comparaison avec l'ancien contenu
-  if (\file_exists($dest)) {
-    $oldContent = \file_get_contents($dest);
-    $oldResult = \json_decode($oldContent, true);
-    $oldPlugins = $oldResult['plugins'];
+    $needUpdate = false;
+    // Comparaison avec l'ancien contenu
+    if (\file_exists($dest)) {
+      $oldContent = \file_get_contents($dest);
+      $oldResult = \json_decode($oldContent, true);
+      $oldPlugins = $oldResult['plugins'];
 
-    if (json_encode($oldPlugins, true) !== json_encode($plugins, true)) {
+      if (json_encode($oldPlugins, true) !== json_encode($plugins, true)) {
+        $needUpdate = true;
+      }
+    }
+    else {
       $needUpdate = true;
     }
-  }
 
-  // Met à jour le fichier que si nécessaire
-  if ($needUpdate) {
-    // Stockage des données
-    $result = [];
-    $result['version'] = \time();
-    $result['plugins'] = $plugins;
-    \file_put_contents($dest, json_encode($result, true));
+    // Met à jour le fichier que si nécessaire
+    if ($needUpdate) {
+      // Stockage des données
+      $result = [];
+      $result['version'] = \time();
+      $result['plugins'] = $plugins;
+      \file_put_contents($dest, json_encode($result, true));
+    }
   }
 }
 
@@ -222,6 +226,7 @@ if (\file_exists('.github-token')) {
 }
 
 $marketsList = [
+  'base-list.json' => 'result.json',
   'stable-list.json' => 'stable-result.json',
   'unstable-list.json' => 'unstable-result.json',
   'jeedom-list.json' => 'jeedom-result.json',
