@@ -229,5 +229,6 @@ $marketsList = [
 ];
 
 foreach ($marketsList as $market => $dest) {
+  echo $market."\n";
   listToJson($gitHubToken, $market, $dest, false);
 }
