@@ -1,0 +1,10 @@
+[
+  "jeedom/plugin-openzwave",
+  "jeedom/plugin-broadlink",
+  "jeedom/plugin-networks",
+  "jeedom/plugin-sonos",
+  "jeedom/plugin-phonemarket",
+  "jeedom/plugin-script",
+  "jeedom/plugin-sms",
+  "jeedom/plugin-widget"
+]
