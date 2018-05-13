@@ -230,7 +230,9 @@ $marketsList = [
   'stable-list.json' => 'stable-result.json',
   'unstable-list.json' => 'unstable-result.json',
   'jeedom-list.json' => 'jeedom-result.json',
-  'others-list.json' => 'others-result.json'
+  'others-list.json' => 'others-result.json',
+  'lunarok-list.json' => 'lunarok-result.json',
+  'mika-nt28-list.json' => 'mika-nt28-result.json'
 ];
 
 foreach ($marketsList as $market => $dest) {
