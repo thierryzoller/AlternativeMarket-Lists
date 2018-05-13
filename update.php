@@ -157,7 +157,10 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
           if (\array_key_exists('description', $infoJsonData)) {
             $plugin['description'] = $infoJsonData['description'];
           }
-          $plugin['require'] = $infoJsonData['require'];
+          $plugin['require'] = '';
+          if (\array_key_exists('require', $infoJsonData)) {
+            $plugin['require'] = $infoJsonData['require'];
+          }
           $plugin['category'] = $infoJsonData['category'];
           $plugin['documentation'] = [];
           if (\array_key_exists('documentation', $infoJsonData)) {
