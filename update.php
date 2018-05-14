@@ -229,11 +229,10 @@ if (\file_exists('.github-token')) {
 }
 
 $marketsList = [
-  'base-list.json' => 'result.json',
   'stable-list.json' => 'stable-result.json',
   'unstable-list.json' => 'unstable-result.json',
   'jeedom-list.json' => 'jeedom-result.json',
-  'others-list.json' => 'others-result.json',
+  'KiwiHC16-list.json' => 'KiwiHC16-result.json',
   'lunarok-list.json' => 'lunarok-result.json',
   'mika-nt28-list.json' => 'mika-nt28-result.json'
 ];
