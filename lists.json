@@ -1,8 +1,10 @@
 [
-  "stable",
-  "unstable",
+  "nextdom-stable",
+  "nextdom-draft",
   "jeedom",
   "KiwiHC16",
-  "lunarok",
-  "mika-nt28"
+  "lunarok-stable",
+  "lunarok-draft",
+  "mika-nt28-stable",
+  "mika-nt28-draft"
 ]
