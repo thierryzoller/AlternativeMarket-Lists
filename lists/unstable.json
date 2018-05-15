@@ -24,5 +24,7 @@
   "NextDom/plugin-worxLandroid",
   "NextDom/plugin-ipx800v2",
   "NextDom/plugin-pulseaudio",
-  "NextDom/plugin-SNMP"
+  "NextDom/plugin-SNMP",
+  "NextDom/plugin-xplanet",
+  "NextDom/plugin-yamahaavr"
 ]
