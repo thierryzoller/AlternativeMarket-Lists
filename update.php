@@ -121,8 +121,13 @@ function getBaseList($filename) {
   return $result;
 }
 
-function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
+/**
+ * Scan une liste de dépots GitHub
+ */
+function scan($gitHubToken, $src, $dest, $withScreenshots) {
   $baseList = getBaseList($src);
+  $errorsList = [];
+
   if ($baseList !== false) {
     if (DEBUG) {
       \var_dump($baseList);
@@ -187,10 +192,9 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
             $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
           }
           \array_push($plugins, $plugin);
-          echo "OK $fullName\n";
         }
         else {
-          echo "ERROR $fullName\n";
+          \array_push($errorsList, $fullName);
         }
       }
     }
@@ -219,6 +223,7 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
       \file_put_contents($dest, json_encode($result, true));
     }
   }
+  return $errorsList;
 }
 
 // Lecture du token GitHub
@@ -228,16 +233,18 @@ if (\file_exists('.github-token')) {
   $gitHubToken = \str_replace("\n", "", $gitHubToken);
 }
 
-$marketsList = [
-  'stable-list.json' => 'stable-result.json',
-  'unstable-list.json' => 'unstable-result.json',
-  'jeedom-list.json' => 'jeedom-result.json',
-  'KiwiHC16-list.json' => 'KiwiHC16-result.json',
-  'lunarok-list.json' => 'lunarok-result.json',
-  'mika-nt28-list.json' => 'mika-nt28-result.json'
-];
+// Récupération de la liste des sources
+$listContent = \file_get_contents('lists.json');
+$sourcesList = \json_decode($listContent, true);
 
-foreach ($marketsList as $market => $dest) {
-  echo $market."\n";
-  listToJson($gitHubToken, $market, $dest, false);
+// Parcours des sources
+foreach ($sourcesList as $source) {
+  echo "Source : $source\n";
+  $errors = scan($gitHubToken, 'lists/'.$source.'.json', 'results/'.$source.'.json', false);
+  if (count($errors) > 0) {
+    echo "Erreurs : \n";
+    foreach ($errors as $repoError) {
+      echo $repoError."\n";
+    }
+  }
 }
