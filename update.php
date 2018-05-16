@@ -240,7 +240,7 @@ $sourcesList = \json_decode($listContent, true);
 // Parcours des sources
 foreach ($sourcesList as $source) {
   echo "Source : $source\n";
-  $errors = scan($gitHubToken, 'lists/'.$source.'.json', 'results/'.$source.'.json', false);
+  $errors = scan($gitHubToken, 'lists/'.$source.'.json', 'results/'.$source.'.json', true);
   if (count($errors) > 0) {
     echo "Erreurs : \n";
     foreach ($errors as $repoError) {
