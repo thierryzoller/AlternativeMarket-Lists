@@ -154,12 +154,12 @@ function scan($gitHubToken, $src, $dest, $withScreenshots) {
           $plugin['defaultBranch'] = $gitHubData['default_branch'];
           $plugin['gitId'] = $gitHubData['owner']['login'];
           $plugin['repository'] = $gitHubData['name'];
+          $plugin['description'] = $gitHubData['description'];
           // Informations du plugin
           $plugin['id'] = $infoJsonData['id'];
           $plugin['name'] = $infoJsonData['name'];
           $plugin['licence'] = $infoJsonData['licence'];
-          $plugin['description'] = '';
-          if (\array_key_exists('description', $infoJsonData)) {
+          if (\array_key_exists('description', $infoJsonData) && $infoJsonData['description'] !== '') {
             $plugin['description'] = $infoJsonData['description'];
           }
           $plugin['require'] = '';
