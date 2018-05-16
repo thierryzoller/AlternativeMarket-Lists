@@ -137,6 +137,7 @@ function scan($gitHubToken, $src, $dest, $withScreenshots) {
 
     // Parcours de la liste
     foreach ($baseList as $fullName) {
+      echo "$fullName\n";
       $gitHubContent = downloadContent('https://api.github.com/repos/'.$fullName, $gitHubToken);
       $infoJsonContent = downloadContent('https://raw.githubusercontent.com/'.$fullName.'/master/plugin_info/info.json');
       if (DEBUG) {
@@ -237,14 +238,17 @@ if (\file_exists('.github-token')) {
 $listContent = \file_get_contents('lists.json');
 $sourcesList = \json_decode($listContent, true);
 
+$errorsList = [];
 // Parcours des sources
 foreach ($sourcesList as $source) {
   echo "Source : $source\n";
   $errors = scan($gitHubToken, 'lists/'.$source.'.json', 'results/'.$source.'.json', true);
-  if (count($errors) > 0) {
-    echo "Erreurs : \n";
-    foreach ($errors as $repoError) {
-      echo $repoError."\n";
-    }
+  $errorsList = array_merge($errorsList, $errors);
+}
+
+if (count($errorsList) > 0) {
+  echo "\nRécapitulatif des erreurs : \n";
+  foreach ($errorsList as $repoError) {
+    echo $repoError."\n";
   }
 }
