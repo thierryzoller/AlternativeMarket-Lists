@@ -86,26 +86,28 @@ function getScreenshots($gitId, $repository, $pluginId, $gitHubToken) {
         'widget',
         'panel'
     );
-    $baseUrls = array(
-        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/docs/images',
-        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/docs',
-        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/images',
-        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents'
+
+    $basePath = array(
+        '/docs/images',
+        '/docs',
+        '/images',
+        ''
     );
     $result = [];
-    foreach ($baseUrls as $baseUrl) {
-        $directoryContentRaw = downloadContent($baseUrl, $gitHubToken);
+    foreach ($basePath as $imagePath) {
+        $testUrl = 'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents'.$imagePath;
+        $directoryContentRaw = downloadContent($testUrl, $gitHubToken);
         $directoryContent = json_decode($directoryContentRaw, true);
         if ($directoryContent !== null) {
             foreach ($patterns as $pattern) {
                 foreach ($directoryContent as $file) {
                   if (isset($file['name'])) {
                     if ($file['name'] == $pattern.'.png') {
-                      array_push($result, $file['_links']['self']);
+                      array_push($result, 'https://github.com/'.$gitId.'/'.$repository.'/raw/master'.$imagePath.'/'.$pattern.'.png');
                     }
                     for ($i = 0; $i < 11; ++$i) {
                       if ($file['name'] == $pattern.$i.'.png') {
-                        array_push($result, $file['_links']['self']);
+                        array_push($result, 'https://github.com/'.$gitId.'/'.$repository.'/raw/master'.$imagePath.'/'.$pattern.$i.'.png');
                       }
                     }
                   }
