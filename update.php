@@ -77,7 +77,7 @@ function isDownloadable($url) {
  *
  * @return array URLs des screenshots.
  */
-function getScreenshots($gitId, $repository, $pluginId) {
+function getScreenshots($gitId, $repository, $pluginId, $gitHubToken) {
     $patterns = array(
         $pluginId.'-Screenshot',
         $pluginId.'-screenshot',
@@ -87,21 +87,28 @@ function getScreenshots($gitId, $repository, $pluginId) {
         'panel'
     );
     $baseUrls = array(
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/images/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/images/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/'
+        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/docs/images',
+        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/docs',
+        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents/images',
+        'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents'
     );
     $result = [];
     foreach ($baseUrls as $baseUrl) {
-        foreach ($patterns as $pattern) {
-            $url = $baseUrl.$pattern;
-            if (isDownloadable($url.'.png')) {
-                array_push($result, $url.'.png');
-            }
-            for ($i = 0; $i < 11; ++$i) {
-                if (isDownloadable($url.$i.'.png')) {
-                    array_push($result, $url.$i.'.png');
+        $directoryContentRaw = downloadContent($baseUrl, $gitHubToken);
+        $directoryContent = json_decode($directoryContentRaw, true);
+        if ($directoryContent !== null) {
+            foreach ($patterns as $pattern) {
+                foreach ($directoryContent as $file) {
+                  if (isset($file['name'])) {
+                    if ($file['name'] == $pattern.'.png') {
+                      array_push($result, $file['_links']['self']);
+                    }
+                    for ($i = 0; $i < 11; ++$i) {
+                      if ($file['name'] == $pattern.$i.'.png') {
+                        array_push($result, $file['_links']['self']);
+                      }
+                    }
+                  }
                 }
             }
         }
@@ -190,7 +197,7 @@ function scan($gitHubToken, $src, $dest, $withScreenshots) {
             }
           }
           if ($withScreenshots) {
-            $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
+            $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id'], $gitHubToken);
           }
           \array_push($plugins, $plugin);
         }
