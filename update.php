@@ -191,11 +191,20 @@ function scan($gitHubToken, $src, $dest, $withScreenshots) {
           $branchesContent = downloadContent('https://api.github.com/repos/'. $fullName .'/branches', $gitHubToken);
           if ($branchesContent) {
             $branchesData = \json_decode($branchesContent, true);
+            $masterBranchFound = false;
             foreach ($branchesData as $branch) {
               $branchData = [];
+              if ($branch['name'] == 'master') {
+                $masterBranchFound = true;
+              }
               $branchData['name'] = $branch['name'];
               $branchData['hash'] = $branch['commit']['sha'];
               \array_push($plugin['branches'], $branchData);
+            }
+            if ($plugin['defaultBranch'] == 'develop' || $plugin['defaultBranch'] == 'beta') {
+              if ($masterBranchFound === true) {
+                $plugin['defaultBranch'] = 'master';
+              }
             }
           }
           if ($withScreenshots) {
