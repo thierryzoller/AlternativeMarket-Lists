@@ -1,5 +1,4 @@
 <?php
-
 /* This file is part of NextDom.
  *
  * NextDom is free software: you can redistribute it and/or modify
