@@ -21,8 +21,13 @@
   "NextDom/plugin-ping",
   "NextDom/plugin-worxLandroid",
   "NextDom/plugin-ipx800v2",
-  "NextDom/plugin-pulseaudio",
+  "NextDom/plugin-PulseAudio",
   "NextDom/plugin-SNMP",
   "NextDom/plugin-xplanet",
-  "NextDom/plugin-yamahaavr"
+  "NextDom/plugin-yamahaavr",
+  "NextDom/plugin-Multiloc",
+  "NextDom/plugin-Wifi-Smartplug",
+  "NextDom/plugin-enocean",
+  "NextDom/plugin-xpl",
+  "NextDom/plugin-ONVIF"
 ]
