@@ -10,6 +10,10 @@ after_script:
 - git config --global user.email ${USER_EMAIL}
 - git config --global user.name ${USER_NAME}
 - git add result.json
+- git add stable-result.json
+- git add unstable-result.json
+- git add jeedom-result.json
+- git add others-result.json
 - git commit -m `date +%s`
 - git push "https://${GITHUB_TOKEN}@github.com/NextDom/AlternativeMarket-Lists.git"
   master
