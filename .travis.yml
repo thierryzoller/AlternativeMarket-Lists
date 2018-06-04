@@ -5,14 +5,7 @@ script:
 - git clone git://github.com/NextDom/AlternativeMarket-Lists.git
 - cd AlternativeMarket-Lists
 - echo ${GITHUB_TOKEN} > .github-token
-- php update.php
-after_script:
-- git config --global user.email ${USER_EMAIL}
-- git config --global user.name ${USER_NAME}
-- git add results/*
-- git commit -m `date +%s`
-- git push "https://${GITHUB_TOKEN}@github.com/NextDom/AlternativeMarket-Lists.git"
-  master
+- php report.php
 env:
   global:
   - secure: AoUVk786mn3MGxFSjtX8qIF1Hd+w8S9iHisZtAp66abCEbfLYlM8e9J6/8hW0fV7EonXIXgAjoZpxmhhUc8TDnGm7jR0uDjgYOMitrFafBybK/X7kjB7732Sm/9OP770JK/5KbwBOK52ekBwOd3sHlQ6YY0S6glbrDTE84h+OziLCOZ+Z1lCOrF7AFMPBOWYNz+n4VZun8NkChdYtzeho2Jt5WvwwBLYRg57/DjS71h2IJpoI//wjHzytyhHxmGyvAKjHsHmH+BEZ7ibKOVnFcIKd9huzhzMolL1YXrp76sdxlUQYuvysG2OtsfMZ6DHg/MRpAMgime1AJakEYolB/ZVe/MfuuGZ+aq3NQqc9pokX+CdHSTVkz/Pvp8Ws/UOH65K742tdfmOg7q0BHa4VE8QgkAuaahQVdf8BknBcfgsYBQn3LfkVGO0jd8/dYDdqBNHWDIHw0w8euKf0vvB+CDa1Ss2/55zaRVBIpd7Km5BanSTiSBfnJhXukB0/CqyaWMn+Y6eNtCttc8Il/caEU6MksK7QVhEzGBROTlVt9NoPDPC9t0xg9agwOdoTPkg8TMSF+LmvzG5rbeiUiqXTfbq6DKYdnSo2eP2EzBpvX1gZ9YmLVzAJJozsn+HasjuovTuPQyzxDuG14eLqNFujy8fc2l9wSYakAPMdVwlgV4=
