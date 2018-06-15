@@ -77,7 +77,7 @@ function isDownloadable($url) {
  *
  * @return array URLs des screenshots.
  */
-function getScreenshots($gitId, $repository, $pluginId) {
+function getScreenshots($gitId, $repository, $pluginId, $gitHubToken) {
     $patterns = array(
         $pluginId.'-Screenshot',
         $pluginId.'-screenshot',
@@ -86,22 +86,31 @@ function getScreenshots($gitId, $repository, $pluginId) {
         'widget',
         'panel'
     );
-    $baseUrls = array(
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/images/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/docs/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/images/',
-        'https://github.com/'.$gitId.'/'.$repository.'/raw/master/'
+
+    $basePath = array(
+        '/docs/images',
+        '/docs',
+        '/images',
+        ''
     );
     $result = [];
-    foreach ($baseUrls as $baseUrl) {
-        foreach ($patterns as $pattern) {
-            $url = $baseUrl.$pattern;
-            if (isDownloadable($url.'.png')) {
-                array_push($result, $url.'.png');
-            }
-            for ($i = 0; $i < 11; ++$i) {
-                if (isDownloadable($url.$i.'.png')) {
-                    array_push($result, $url.$i.'.png');
+    foreach ($basePath as $imagePath) {
+        $testUrl = 'https://api.github.com/repos/'.$gitId.'/'.$repository.'/contents'.$imagePath;
+        $directoryContentRaw = downloadContent($testUrl, $gitHubToken);
+        $directoryContent = json_decode($directoryContentRaw, true);
+        if ($directoryContent !== null) {
+            foreach ($patterns as $pattern) {
+                foreach ($directoryContent as $file) {
+                  if (isset($file['name'])) {
+                    if ($file['name'] == $pattern.'.png') {
+                      array_push($result, 'https://github.com/'.$gitId.'/'.$repository.'/raw/master'.$imagePath.'/'.$pattern.'.png');
+                    }
+                    for ($i = 0; $i < 11; ++$i) {
+                      if ($file['name'] == $pattern.$i.'.png') {
+                        array_push($result, 'https://github.com/'.$gitId.'/'.$repository.'/raw/master'.$imagePath.'/'.$pattern.$i.'.png');
+                      }
+                    }
+                  }
                 }
             }
         }
@@ -121,8 +130,13 @@ function getBaseList($filename) {
   return $result;
 }
 
-function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
+/**
+ * Scan une liste de dépots GitHub
+ */
+function scan($gitHubToken, $src, $dest, $withScreenshots) {
   $baseList = getBaseList($src);
+  $errorsList = [];
+
   if ($baseList !== false) {
     if (DEBUG) {
       \var_dump($baseList);
@@ -132,6 +146,7 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
 
     // Parcours de la liste
     foreach ($baseList as $fullName) {
+      echo "$fullName\n";
       $gitHubContent = downloadContent('https://api.github.com/repos/'.$fullName, $gitHubToken);
       $infoJsonContent = downloadContent('https://raw.githubusercontent.com/'.$fullName.'/master/plugin_info/info.json');
       if (DEBUG) {
@@ -149,15 +164,18 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
           $plugin['defaultBranch'] = $gitHubData['default_branch'];
           $plugin['gitId'] = $gitHubData['owner']['login'];
           $plugin['repository'] = $gitHubData['name'];
+          $plugin['description'] = $gitHubData['description'];
           // Informations du plugin
           $plugin['id'] = $infoJsonData['id'];
           $plugin['name'] = $infoJsonData['name'];
           $plugin['licence'] = $infoJsonData['licence'];
-          $plugin['description'] = '';
-          if (\array_key_exists('description', $infoJsonData)) {
+          if (\array_key_exists('description', $infoJsonData) && $infoJsonData['description'] !== '') {
             $plugin['description'] = $infoJsonData['description'];
           }
-          $plugin['require'] = $infoJsonData['require'];
+          $plugin['require'] = '';
+          if (\array_key_exists('require', $infoJsonData)) {
+            $plugin['require'] = $infoJsonData['require'];
+          }
           $plugin['category'] = $infoJsonData['category'];
           $plugin['documentation'] = [];
           if (\array_key_exists('documentation', $infoJsonData)) {
@@ -173,21 +191,29 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
           $branchesContent = downloadContent('https://api.github.com/repos/'. $fullName .'/branches', $gitHubToken);
           if ($branchesContent) {
             $branchesData = \json_decode($branchesContent, true);
+            $masterBranchFound = false;
             foreach ($branchesData as $branch) {
               $branchData = [];
+              if ($branch['name'] == 'master') {
+                $masterBranchFound = true;
+              }
               $branchData['name'] = $branch['name'];
               $branchData['hash'] = $branch['commit']['sha'];
               \array_push($plugin['branches'], $branchData);
             }
+            if ($plugin['defaultBranch'] == 'develop' || $plugin['defaultBranch'] == 'beta') {
+              if ($masterBranchFound === true) {
+                $plugin['defaultBranch'] = 'master';
+              }
+            }
           }
           if ($withScreenshots) {
-            $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id']);
+            $plugin['screenshots'] = getScreenshots($plugin['gitId'], $plugin['repository'], $plugin['id'], $gitHubToken);
           }
           \array_push($plugins, $plugin);
-          echo "OK $fullName\n";
         }
         else {
-          echo "ERROR $fullName\n";
+          \array_push($errorsList, $fullName);
         }
       }
     }
@@ -216,6 +242,7 @@ function listToJson($gitHubToken, $src, $dest, $withScreenshots) {
       \file_put_contents($dest, json_encode($result, true));
     }
   }
+  return $errorsList;
 }
 
 // Lecture du token GitHub
@@ -225,15 +252,21 @@ if (\file_exists('.github-token')) {
   $gitHubToken = \str_replace("\n", "", $gitHubToken);
 }
 
-$marketsList = [
-  'base-list.json' => 'result.json',
-  'stable-list.json' => 'stable-result.json',
-  'unstable-list.json' => 'unstable-result.json',
-  'jeedom-list.json' => 'jeedom-result.json',
-  'others-list.json' => 'others-result.json'
-];
+// Récupération de la liste des sources
+$listContent = \file_get_contents('lists.json');
+$sourcesList = \json_decode($listContent, true);
 
-foreach ($marketsList as $market => $dest) {
-  echo $market."\n";
-  listToJson($gitHubToken, $market, $dest, false);
+$errorsList = [];
+// Parcours des sources
+foreach ($sourcesList as $source) {
+  echo "Source : $source\n";
+  $errors = scan($gitHubToken, 'lists/'.$source.'.json', 'results/'.$source.'.json', true);
+  $errorsList = array_merge($errorsList, $errors);
+}
+
+if (count($errorsList) > 0) {
+  echo "\nRécapitulatif des erreurs : \n";
+  foreach ($errorsList as $repoError) {
+    echo $repoError."\n";
+  }
 }
