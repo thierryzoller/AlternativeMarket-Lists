@@ -8,5 +8,6 @@
   "NextDom/plugin-veolia_eau",
   "NextDom/plugin-teleinfo",
   "NextDom/plugin-jpi",
-  "NextDom/plugin-RTSP"
+  "NextDom/plugin-RTSP",
+  "NextDom/plugin-shutters"
 ]
