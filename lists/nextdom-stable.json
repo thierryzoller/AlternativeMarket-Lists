@@ -9,5 +9,6 @@
   "NextDom/plugin-teleinfo",
   "NextDom/plugin-jpi",
   "NextDom/plugin-RTSP",
-  "NextDom/plugin-shutters"
+  "NextDom/plugin-shutters",
+  "NextDom/Plugin-NotifHeure"
 ]
