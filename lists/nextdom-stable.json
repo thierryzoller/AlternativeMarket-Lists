@@ -10,5 +10,6 @@
   "NextDom/plugin-jpi",
   "NextDom/plugin-RTSP",
   "NextDom/plugin-shutters",
+  "NextDom/plugin-Meross",
   "NextDom/Plugin-NotifHeure"
 ]
