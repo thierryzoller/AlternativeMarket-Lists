@@ -30,6 +30,5 @@
   "NextDom/plugin-xpl",
   "NextDom/plugin-ONVIF",
   "NextDom/plugin-ftpd",
-  "NextDom/plugin-Meross",
   "NextDom/plugin-eventghost"
 ]
