@@ -47,7 +47,7 @@ function downloadContent($url, $gitHubToken = '')
     if ($curlSession !== false) {
         \curl_setopt($curlSession, CURLOPT_URL, $url);
         \curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
-        \curl_setopt($curlSession, CURLOPT_USERAGENT, 'AlternativeMarketUpdate');
+        \curl_setopt($curlSession, CURLOPT_USERAGENT, 'LSHMarketUpdate');
         $content = \curl_exec($curlSession);
         if (DEBUG) {
           \var_dump($content);
